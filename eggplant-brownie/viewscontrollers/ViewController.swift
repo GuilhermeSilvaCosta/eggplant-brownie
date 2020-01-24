@@ -12,11 +12,18 @@ protocol AddAMealDelegate {
     func add(meal: Meal)
 }
 
-class ViewController: UIViewController {
+class ViewController: UIViewController, UITableViewDataSource, UITableViewDelegate {
 
     @IBOutlet var nameField: UITextField!
     @IBOutlet var happinessField: UITextField!
     var delegate:AddAMealDelegate?
+    
+    var items = [Item(name: "Eggplant Brownie", calories: 10), Item(name: "Zucchini Muffin", calories: 10),
+                 Item(name: "Cookie", calories: 10),
+                 Item(name: "Coconut oil", calories: 500),
+                 Item(name: "Chocolate frosting", calories: 1000),
+                 Item(name: "Chocolate chip", calories: 1000)]
+    var selected = Array<Item>()
     
     @IBAction func add() {
         if nameField == nil || happinessField == nil {
@@ -28,7 +35,8 @@ class ViewController: UIViewController {
             return
         }
         let meal = Meal(name: name!, happiness: happiness!)
-        print("eaten: \(meal.name) \(meal.happiness)!")
+        meal.items = selected
+        print("eaten: \(meal.name) \(meal.happiness) \(meal.items)")
         
         if delegate == nil {
             return
@@ -39,6 +47,45 @@ class ViewController: UIViewController {
         if let navigation = self.navigationController {
             navigation.popViewController(animated: true)
         }
+    }
+    
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        return items.count
+    }
+    
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        let row = indexPath.row
+        let item = items[ row ]
+        var cell = UITableViewCell(style: UITableViewCell.CellStyle.default, reuseIdentifier: nil)
+        cell.textLabel?.text = item.name
+        return cell
+    }
+    
+    func tableView(_ tableView: UITableView, didDeselectRowAt indexPath: IndexPath) {
+        let cell = tableView.cellForRow(at: indexPath)
+        if cell == nil {
+            return
+        }
+        if cell!.accessoryType == UITableViewCell.AccessoryType.none {
+            cell!.accessoryType = UITableViewCell.AccessoryType.checkmark
+            selected.append(items[indexPath.row])
+        } else {
+            cell!.accessoryType = UITableViewCell.AccessoryType.none
+            if let position = find(elements: selected, toFind: items[indexPath.row]) {
+                selected.remove(at: position)
+            }
+        }
+    }
+    
+    func find(elements:Array<Item>, toFind:Item) -> Int? {
+        let max = elements.count - 1
+        for i in 0...max {
+            if toFind == elements[i] {
+                return i
+            }
+        }
+        return nil
+        
     }
 
 }

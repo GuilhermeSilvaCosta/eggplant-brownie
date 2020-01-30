@@ -12,10 +12,12 @@ protocol AddAMealDelegate {
     func add(meal: Meal)
 }
 
-class ViewController: UIViewController, UITableViewDataSource, UITableViewDelegate {
+class ViewController: UIViewController, UITableViewDataSource, UITableViewDelegate, AddAnItemDelegate {
 
     @IBOutlet var nameField: UITextField!
     @IBOutlet var happinessField: UITextField!
+    @IBOutlet var tableView: UITableView?
+    
     var delegate:AddAMealDelegate?
     
     var items = [Item(name: "Eggplant Brownie", calories: 10), Item(name: "Zucchini Muffin", calories: 10),
@@ -24,6 +26,29 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
                  Item(name: "Chocolate frosting", calories: 1000),
                  Item(name: "Chocolate chip", calories: 1000)]
     var selected = Array<Item>()
+    
+    override func viewDidLoad() {
+        let newItemButton = UIBarButtonItem(title: "new item",
+                                            style: UIBarButtonItem.Style.plain,
+                                            target: self,
+                                            action: Selector("showNewItem"))
+        navigationItem.rightBarButtonItem = newItemButton
+    }
+    
+    func addNew(item: Item) {
+        items.append(item)
+        if tableView == nil {
+            return
+        }
+        tableView!.reloadData()
+    }
+    
+    @IBAction func showNewItem() {
+        let newItem = NewItemViewController(delegate: self)
+        if let navigation = navigationController {
+            navigation.pushViewController(newItem, animated: true)
+        }
+    }
     
     @IBAction func add() {
         if nameField == nil || happinessField == nil {

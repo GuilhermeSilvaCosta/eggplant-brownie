@@ -37,10 +37,9 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
     
     func addNew(item: Item) {
         items.append(item)
-        if tableView == nil {
-            return
+        if let table = tableView {
+            table.reloadData()
         }
-        tableView!.reloadData()
     }
     
     @IBAction func showNewItem() {
